@@ -1,0 +1,126 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define int long long
+#define N 1000005
+const int mod = 1000000007;
+ 
+int Pow(int x, int b)
+{
+    int ret = 1;
+    for(int s = x; b; b >>= 1)
+    {
+        if(b & 1)
+            ret *= s;
+        s *= s;
+    }
+    return ret;
+}
+int PowMod(int x, int b, int p)
+{
+    int ret = 1 % p;
+    for(int s = x % p; b; b >>= 1)
+    {
+        if(b & 1)
+        {
+            ret *= s;
+            ret %= p;
+        }
+        s *= s;
+        s %= p;
+    }
+    return ret;
+}
+pair<int, int> ExGcd(int a, int b)
+{
+    if(a == 0) return make_pair(0, 1);
+    pair<int, int> s = ExGcd(b % a, a);
+    return make_pair(s.second - b / a * s.first, s.first);
+}
+int Inv(int a, int m) 
+{
+    pair<int, int> s = ExGcd(a, m);
+    return s.first < 0 ? s.first + m : s.first;
+}
+pair<int, int> FacMod(int n, int p, int k)
+{
+    int pk = Pow(p, k);
+    int S[pk];
+    S[0] = 1 % pk;
+    for(int i = 1; i < pk; ++i)
+    {
+        S[i] = S[i - 1];
+        if(i % p != 0)
+        {
+            S[i] *= i;
+            S[i] %= pk;
+        }
+    }
+    int ret = 1 % pk, et = 0, ep = 0;
+    while(n)
+    {
+        et += n / pk;
+        ret *= S[n % pk];
+        ret %= pk;
+        ep += n / p;
+        n /= p;
+    }
+    ret *= PowMod(S[pk - 1], et, pk);
+    ret %= pk;
+    return make_pair(ret, ep);
+}
+int CRT(int x1, int m1, int x2, int m2)
+{
+    pair<int, int> s = ExGcd(m1, m2);
+    int k1 = s.second * m2, k2 = s.first * m1;
+    int t = (x1 * k1 + x2 * k2) % (m1 * m2);
+    return t < 0 ? t + m1 * m2 : t;
+}
+vector<pair<int, int> > Factorize(int n)
+{
+    vector<pair<int, int> > ret;
+    for(int x = 2; x * x <= n; ++x)
+    {
+        if(n % x == 0)
+        {
+            int c = 0;
+            while(n % x == 0)
+            {
+                ++c;
+                n /= x;
+            }
+            ret.push_back(make_pair(x, c) );
+        }
+    }
+    if(n > 1) ret.push_back(make_pair(n, 1) );
+    return ret;
+}
+int Calc(int n, int p)
+{
+    vector<pair<int, int> > factors = Factorize(p);
+    int x = 0, m = 1;
+    for(int i = 0; i < factors.size(); ++i)
+    {
+        pair<int, int> f2n = FacMod(n * 2, factors[i].first, factors[i].second);
+        pair<int, int> fn = FacMod(n, factors[i].first, factors[i].second);
+        pair<int, int> fn1 = FacMod(n + 1, factors[i].first, factors[i].second);
+        int pk = Pow(factors[i].first, factors[i].second);
+        int t = f2n.first * Inv(fn.first, pk) % pk;
+        t = t * Inv(fn1.first, pk) % pk;
+        t = t * PowMod(factors[i].first, f2n.second - fn.second - fn1.second, pk) % pk;
+        x = CRT(x, m, t, pk);
+        m *= pk;
+    }
+    return x;
+}
+main(){
+    int m, p; scanf("%lld%lld", &m, &p); int n = 0;
+    for (int i = 1; i <= m; ++ i) {
+    	int x; scanf("%lld", &x); if (x > 0) ++ n;
+    }
+    if (n == 0) {
+    	return 0 * puts("Terrible Place");
+    }
+    if (p == 1) return 0 * puts("0"); 
+    printf("%lld\n", Calc(n, p) );
+    return 0;
+}

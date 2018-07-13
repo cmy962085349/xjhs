@@ -1,0 +1,34 @@
+#include<cstdio>
+
+using namespace std;
+
+long long phi[1000005],farey[1000005];
+int Prim[1000005],n,ptop;
+bool b[1000005];
+void Euler_phi(int n){
+	phi[1]=1;
+	for(int i=2;i<=n;i++){
+		if(!b[i]){
+			Prim[++ptop]=i;
+			phi[i]=i-1;
+		}
+		for(int j=1;j<=ptop&&i*Prim[j]<=n;j++){
+			b[i*Prim[j]]=1;
+			if(!(i%Prim[j])){
+				phi[i*Prim[j]]=phi[i]*Prim[j];
+				break;
+			}
+			phi[i*Prim[j]]=phi[i]*(Prim[j]-1);
+		}
+	}
+}
+
+int main(){
+	scanf("%d",&n);
+	Euler_phi(n);
+	for(int i=2;i<=n;i++){
+		farey[i]=farey[i-1]+phi[i];
+	}
+	printf("%lld",farey[n]);
+}
+

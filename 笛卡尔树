@@ -32,3 +32,4 @@ void make_tree_and_init(){
 int main(){
 	make_tree_and_init();
 }
+ 

@@ -1,0 +1,26 @@
+#include<cstdio>
+#include<algorithm>
+using namespace std;
+long long a,b,x,y,c,k;
+
+long long Extgcd(long long a,long long b,long long &x,long long &y){
+	long long d=a;
+	if(b!=0){
+		d=Extgcd(b,a%b,x,y);
+		x-=(a/b)*y;
+		swap(x,y);
+	}else{
+		x=1;y=0;
+	}
+	return d;
+}
+int main(){
+	scanf("%lld%lld%lld",&a,&b,&c);
+    long long gcd=Extgcd(a,b,x,y);
+    if(c%gcd==0){
+    	long long kx=b/gcd;
+    	long long ky=a/gcd;
+    	printf("%lld %lld\n",(x-k*kx),(y+k*ky));
+	}
+    else printf("-1");
+}

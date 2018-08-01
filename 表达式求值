@@ -1,0 +1,110 @@
+#include<cstdio>
+#include<cmath>
+#include<string>
+#include<iostream>
+using namespace std;
+string s;
+double stack[1000];
+int pre[1000],top,ctop;
+char stackch[1000];
+
+double clc(double a1,double a2,char ch){
+    if(ch=='+')return a1+a2;
+    if(ch=='-')return a1-a2;
+    if(ch=='*')return a1*a2;
+    if(ch=='/')return a1/a2;
+    if(ch=='^')return pow(a1,a2);
+}
+
+void push(double x){
+    stack[++top]=x;
+}
+
+void pushchar(char x){
+    stackch[++ctop]=x;
+}
+
+void popchar(){
+    ctop--;
+}
+
+void pop(){
+    stack[top-1]=clc(stack[top-1],stack[top],stackch[ctop--]);
+    top--;
+}
+
+void precondition(){
+    pre['$']=0;
+    pre['@']=pre['(']=1;
+    pre['+']=pre['-']=2;
+    pre['*']=pre['/']=3;
+    pre['^']=4;
+}
+
+void init(){
+    cin>>s;
+    s='@'+s+'@';
+    stackch[++ctop]='$';
+}
+
+void work(){
+    double num=0,k=0,b=1;
+    bool isin=1;
+    for(int i=1;i<s.length();i++){
+        char ch=s[i];
+        if(ch=='-'&&((i==1)||(s[i-1]=='('))){
+            push(0);
+            pushchar('-');
+            continue;
+        }
+        if(ch=='-'&&(!isdigit(s[i-1])&&s[i-1]!=')')){
+            b=-1;
+            continue;
+        }
+        if(ch=='+'&&(!isdigit(s[i-1])&&s[i-1]!=')')){
+            continue;
+        }
+		if(ch=='.'){
+            k=0.1;
+            continue;
+        }
+        if(isdigit(ch)){
+            isin=0;
+            if(k==0)num=num*10+ch-'0';
+            else num+=(ch-'0')*k,k/=10;
+            continue;
+        }
+        if(isin==0){
+            push(num*b);
+            num=0;
+            k=0;
+            b=1;
+            isin=1;
+        }
+        if(ch==')'){
+            while(stackch[ctop]!='(')pop();
+            popchar();
+            continue;
+        }
+        if(ch=='('){
+        	pushchar(ch);
+        	continue;
+		}
+        while(pre[ch]<=pre[stackch[ctop]]){
+            pop();
+        }
+        pushchar(ch);
+    }
+}
+
+void print(){ 
+    long long ans=floor(stack[1]*100+0.5);
+    printf("%.2lf",ans/100.0);
+}
+
+int main(){
+    precondition();
+    init();
+    work();
+    print();
+}

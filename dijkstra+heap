@@ -1,0 +1,109 @@
+#include<cstdio>
+#include<algorithm>
+#include<climits>
+#define LL long long
+using namespace std;
+const LL maxn=1e6+5;
+const LL maxm=1e7+5;
+const LL inf=LLONG_MAX/2;
+
+int fir[maxn],nex[maxm],to[maxm];
+LL va[maxm];
+int ltop,n,m;
+
+void add(int x,int y,LL v){
+	nex[++ltop]=fir[x];
+	fir[x]=ltop;
+	to[ltop]=y;
+	va[ltop]=v;
+}
+
+int heap[maxn],map[maxn];
+int size;
+
+LL f[maxn];
+
+void up(int x){
+	if(x==0)return;
+	if(f[heap[x]]<f[heap[x>>1]]){
+		swap(map[heap[x]],map[heap[x>>1]]);
+		swap(heap[x],heap[x>>1]);
+		up(x>>1);
+	}
+}
+
+void down(int x){
+	if((x<<1)>size)return;
+	if(f[heap[x]]>f[heap[x<<1]]){
+		if((x<<1)==size||f[heap[x<<1]]<f[heap[x<<1|1]]){
+			swap(map[heap[x]],map[heap[x<<1]]);
+			swap(heap[x],heap[x<<1]);
+			down(x<<1);
+		}
+	}
+	if(f[heap[x]]>f[heap[x<<1|1]]&&(x<<1|1)<=size){
+		swap(map[heap[x]],map[heap[x<<1|1]]);
+		swap(heap[x],heap[x<<1|1]);
+		down(x<<1|1);
+	}
+}
+
+bool vis[maxn],isin[maxn];
+
+int pop(){
+	int ans=heap[1];
+	vis[ans]=1;
+	swap(map[heap[1]],map[heap[size]]);
+	swap(heap[1],heap[size--]);
+	down(1);
+	return ans;
+}
+
+void push(int x){
+	isin[x]=1;
+	heap[++size]=x;
+	map[x]=size;
+	up(size);
+}
+
+void init(){
+	scanf("%d%d",&n,&m);
+	int x,y;
+	LL z;
+	for(int i=1;i<=m;i++){
+		scanf("%d%d%lld",&x,&y,&z);
+		add(x,y,z);
+	}
+	for(int i=2;i<=n;i++){
+		f[i]=inf; 
+	}
+}
+
+void work(){
+	push(1);
+	while(!vis[n]){
+		int x=pop();
+		for(int i=fir[x];i;i=nex[i]){
+			int v=to[i];
+			if(vis[v])continue;
+			if(f[x]+va[i]<f[v]){
+				f[v]=f[x]+va[i];
+				if(isin[v]){
+					up(map[v]);
+				}else{
+					push(v);
+				}
+			}
+		}
+	}
+} 
+
+void print(){
+	printf("%lld ",f[n]);
+}
+
+int main(){
+	init();
+	work();
+	print();
+}

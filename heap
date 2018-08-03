@@ -1,0 +1,36 @@
+LL heap[maxn];
+int size;
+void up(int x){
+	if(x==0)return;
+	if(heap[x]<heap[x>>1]){
+		swap(heap[x],heap[x>>1]);
+		up(x>>1);
+	}
+}
+
+void down(int x){
+	if((x<<1)>size)return;
+	if(heap[x]>heap[x<<1]){
+		if((x<<1)==size||heap[x<<1]<heap[x<<1|1]){
+			swap(heap[x],heap[x<<1]);
+			down(x<<1);
+		}
+	}
+	if(heap[x]>heap[x<<1|1]&&(x<<1|1)<=size){
+		swap(heap[x],heap[x<<1|1]);
+		down(x<<1|1);
+	}
+}
+
+
+LL pop(){
+	LL ans=heap[1];
+	swap(heap[1],heap[size--]);
+	down(1);
+	return ans;
+}
+
+void push(int x){
+	heap[++size]=x;
+	up(size);
+}

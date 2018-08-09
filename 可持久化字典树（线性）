@@ -1,0 +1,81 @@
+#include<cstdio>
+#include<algorithm>
+#include<cstring>
+#include<iostream>
+using namespace std;
+const int maxn=6e5+10;
+int n,m;
+int Map[maxn];
+inline int read(){
+	int ans=0;
+	char ch=getchar();
+	while(ch>'9'||ch<'0')ch=getchar();
+	while(ch<='9'&&ch>='0')ans=(ans<<3)+(ans<<1)+ch-'0',ch=getchar();
+	return ans;
+}
+
+class MTrie{
+	public:
+		void init(){
+			memset(node,0,sizeof(node));
+			memset(root,0,sizeof(root));
+			tot=0;
+		}
+		void insert(int x,int f,int v){
+			root[x]=++tot;
+			int rtx=root[x],rtf=root[f];
+			int t;
+			for(int i=28;i>=0;i--){
+				t=(v>>i)&1;
+				if(!node[rtx].son[t]){
+					node[rtx].son[t]=++tot;
+					node[rtx].son[!t]=node[rtf].son[!t];
+					node[node[rtx].son[t]].size=node[node[rtf].son[t]].size;
+				}
+				rtx=node[rtx].son[t];
+				rtf=node[rtf].son[t];
+				node[rtx].size++;
+			}
+		}
+		int search(int v,int r,int l){
+			int ans=0,res=Map[l]^v;
+			int rtl=root[l],rtr=root[r];
+			int t;
+			for(int i=28;i>=0;i--){
+				t=(v>>i)&1;
+				if(node[node[rtr].son[!t]].size>node[node[rtl].son[!t]].size){
+					ans+=1<<i;
+					t=!t;
+				}
+				rtl=node[rtl].son[t];
+				rtr=node[rtr].son[t];
+			}
+			return max(ans,res);
+		}
+	private:
+		struct Node{
+			int son[2];
+			int size;
+		}node[maxn<<5];
+		int tot,root[maxn];
+};MTrie MT;
+
+int main(){
+	n=read();m=read();
+	MT.init();
+	int temp=0;
+	for(int i=1;i<=n;i++){
+		Map[i]=temp^=read();
+		MT.insert(i,i-1,temp);
+	}
+	char way;
+	for(int i=1;i<=m;i++){
+		cin>>way;
+		if(way=='A'){
+			Map[++n]=temp^=read();
+			MT.insert(n,n-1,temp);
+		}else{
+			printf("%d\n",MT.search(read()^temp,read()-1,read()-1));
+		}
+	}
+}

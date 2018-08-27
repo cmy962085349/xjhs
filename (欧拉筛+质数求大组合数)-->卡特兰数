@@ -54,7 +54,7 @@ LL Catalan(LL n,LL mod){
 }
 
 int main(){
-	scanf("%d",&n);
+	scanf("%lld",&n);
 	Euler_prim(n);
 	printf("%lld",Catalan(n,mod));
 }

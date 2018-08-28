@@ -1,0 +1,147 @@
+#include<cstdio>
+#include<algorithm>
+#include<cstring>
+using namespace std;
+const int maxn=1e5+10;
+const int maxm=1e6+10;
+int n,m;
+int topo[maxn],h,t,ans,dp[maxn];
+class rebuild{
+    public:
+        void GetValue(int i,int x){
+            node[i].value=x;
+        }
+        void GetLink(int i,int f,int t){
+            x[i]=f;
+            y[i]=t;
+            add(x[i],y[i]);
+        }
+        void GetCircle(){
+            for(int i=1;i<=n;i++)
+                if(!node[i].dfn)tarjan(i);
+            remove();
+            build();
+        }
+        void ExtraOp();
+    private:
+        int fir[maxn],nex[maxm],to[maxm],ltop;
+        int de[maxn];
+        struct Node{
+            int dfn,low,arrange,value;
+            bool vis;
+        }node[maxn];int num,col;
+
+        int st[maxn],top;
+        void tarjan(int u){
+            node[u].dfn=node[u].low=++num;
+            st[++top]=u;
+            for(int i=fir[u];i;i=nex[i]){
+                int v=to[i];
+                if(!node[v].dfn){
+                    tarjan(v);
+                    node[u].low=min(node[u].low,node[v].low);
+                }else if(!node[v].arrange){
+                    node[u].low=min(node[u].low,node[v].dfn);
+                }
+            }
+            if(node[u].dfn==node[u].low){
+                node[u].arrange=++col;
+                va[col]=node[u].value;
+                while(st[top]!=u)node[st[top]].arrange=col,va[col]+=node[st[top--]].value;
+                top--;
+            }
+        }
+
+        void add(int x,int y){
+            nex[++ltop]=fir[x];
+            fir[x]=ltop;
+            to[ltop]=y;
+        }
+        int x[maxn],y[maxn],va[maxn];
+        int temp[maxn];
+        void Msort(int l,int r){
+        	if(l>=r)return;
+        	int mid=(l+r)/2;
+        	Msort(l,mid);
+        	Msort(mid+1,r);
+        	int i=l,j=mid+1;
+        	for(int k=l;k<=r;k++){
+        		if(i>mid){
+        			temp[k]=link[j++];
+					continue;
+				}
+        		if(j>r){
+        			temp[k]=link[i++];
+					continue;	
+				}
+        		if(x[i]<x[j]||(x[i]==x[j]&&y[i]<y[j])){
+        			temp[k]=link[i++];
+				}else{
+					temp[k]=link[j++];
+				}
+			}
+			for(int i=l;i<=r;i++){
+				link[i]=temp[i];
+			}
+		}
+        
+        int link[maxn]; 
+        void remove(){
+            for(int i=1;i<=m;i++){
+                link[i]=i;
+                x[i]=node[x[i]].arrange;
+                y[i]=node[y[i]].arrange;
+            }
+            Msort(1,m);
+        }
+        void build(){
+            ltop=0;
+            memset(fir,0,sizeof fir);
+            for(int i=1;i<=m;i++){
+                int p=link[i];
+                if((x[p]!=y[p])&&(x[p]!=x[link[i-1]]||y[p]!=y[link[i-1]])){
+                    de[y[p]]++;
+                    add(x[p],y[p]);
+                }
+            }
+        }
+};rebuild re;
+
+void init(){
+    scanf("%d%d",&n,&m);
+    int x,y;
+    for(int i=1;i<=n;i++){
+        scanf("%d",&x);
+        re.GetValue(i,x);
+    }
+    for(int i=1;i<=m;i++){
+        scanf("%d%d",&x,&y);
+        re.GetLink(i,x,y);
+    }
+    re.GetCircle();
+}
+
+void rebuild::ExtraOp(){
+    for(int i=1;i<=re.col;i++)
+        if(re.de[i]==0)topo[++t]=i,dp[i]=re.va[i];
+
+    while(h<t){
+        int x=topo[++h];
+        for(int i=re.fir[x];i;i=re.nex[i]){
+            dp[re.to[i]]=max(dp[re.to[i]],dp[x]+re.va[re.to[i]]);
+            de[re.to[i]]--;
+            if(re.de[to[i]]==0)topo[++t]=re.to[i];
+        }
+        ans=max(ans,dp[x]);
+    }
+}
+
+void print(){
+    printf("%d",ans);
+}
+
+int main(){
+    init();
+    re.ExtraOp();
+    print();
+}

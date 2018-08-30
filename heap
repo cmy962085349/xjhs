@@ -34,15 +34,16 @@ class heap{
 		}
 		void down(int x){
 			if((x<<1)>si)return;
-			if(cmp(x<<1|1,x)){
+			if(cmp(x<<1,x)){
 				if(si==(x<<1)||cmp(x<<1,x<<1|1)){
 					swap(x,x<<1);
 					down(x<<1);
+					return;
 				}
 			}
 			if((x<<1|1)<=si&&cmp(x<<1|1,x)){
 				swap(x,x<<1|1);
-				down(x<<1);
+				down(x<<1|1);
 			}
 		}
-};
+};heap H;

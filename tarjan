@@ -74,7 +74,7 @@ class rebuild{
         			temp[k]=link[i++];
 					continue;	
 				}
-        		if(x[i]<x[j]||(x[i]==x[j]&&y[i]<y[j])){
+        		if(x[link[i]]<x[link[j]]||(x[link[i]]==x[link[j]]&&y[link[i]]<y[link[j]])){
         			temp[k]=link[i++];
 				}else{
 					temp[k]=link[j++];
